@@ -1,10 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,10 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import {
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import {
   FormControl,
   FormGroup,
@@ -29,26 +20,16 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  Extension,
-  Period,
-  Questionnaire,
-  QuestionnaireItem,
-  QuestionnaireItemAnswerOption,
-  QuestionnaireItemEnableWhen,
-} from 'fhir/r5';
+import { Extension, Questionnaire, QuestionnaireItem } from 'fhir/r5';
 import { v4 as uuidv4 } from 'uuid';
-import { QuestionType } from '../../../../shared/enums/question-types';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { User } from '../../../../core/auth/user.model';
-import { QuestionnaireComponent } from '../questionnaire/questionnaire.component';
-import { routes } from '../../../../app.routes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuestionnaireService } from '../../questionaire.service';
-import { QuestionComponent } from '../../components/question/question.component';
 import { QuestionnaireTopics } from '../../../../shared/enums/questionnaire-topics';
+import { ConstructorQuestionComponent } from '../../components/constructor-question/constructor-question.component';
 
 @Component({
   selector: 'app-q-constructor',
@@ -67,9 +48,9 @@ import { QuestionnaireTopics } from '../../../../shared/enums/questionnaire-topi
     MatDividerModule,
     MatTooltipModule,
     MatMenuModule,
-    QuestionComponent,
     MatDatepickerModule,
     ReactiveFormsModule,
+    ConstructorQuestionComponent,
   ],
   templateUrl: './q-constructor.component.html',
   styleUrl: './q-constructor.component.scss',
@@ -89,7 +70,7 @@ export class QConstructorComponent implements OnInit {
   minDateValidator(control: FormControl) {
     const selectedDate = control.value;
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to midnight for accuracy
+    today.setHours(0, 0, 0, 0);
 
     return selectedDate && selectedDate < today
       ? { minDateInvalid: true }
@@ -132,8 +113,11 @@ export class QConstructorComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let testVar: string = '';
+
     this.route.queryParams.subscribe((params) => {
-      this.isTemplate = params['isTemplate'];
+      testVar = params['isTemplate'];
+      this.isTemplate = params['isTemplate'] === 'true';
       this.patientEmail = params['patientEmail'];
     });
 
@@ -150,6 +134,7 @@ export class QConstructorComponent implements OnInit {
         publisher: (JSON.parse(sessionStorage.getItem('user')!) as User).email,
         description: '',
         item: [],
+        extension: [],
         resourceType: 'Questionnaire',
       };
     }
@@ -182,25 +167,6 @@ export class QConstructorComponent implements OnInit {
   }
 
   getDateFormatted(): string {
-    // const now = new Date();
-    // const offset = -now.getTimezoneOffset(); // Get timezone offset in minutes
-    // const sign = offset >= 0 ? '+' : '-'; // Determine the sign for the offset
-    // const hoursOffset = String(Math.abs(Math.floor(offset / 60))).padStart(
-    //   2,
-    //   '0'
-    // ); // Hours part
-    // const minutesOffset = String(Math.abs(offset % 60)).padStart(2, '0'); // Minutes part
-
-    // const formattedDate = `${now.getFullYear()}-${String(
-    //   now.getMonth() + 1
-    // ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(
-    //   now.getHours()
-    // ).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(
-    //   now.getSeconds()
-    // ).padStart(2, '0')}${sign}${hoursOffset}:${minutesOffset}`;
-
-    // return formattedDate;
-
     const now = new Date();
     return now.toISOString();
   }
@@ -314,6 +280,10 @@ export class QConstructorComponent implements OnInit {
       return false;
     }
 
+    if (this.questionnaire.item && this.questionnaire.item.length === 0) {
+      return false;
+    }
+
     return this.validateQuestions(this.questions);
   }
 
@@ -368,7 +338,7 @@ export class QConstructorComponent implements OnInit {
       console.log('User is invalid!');
     }
 
-    if (this.isTemplate) {
+    if (this.isTemplate === true) {
       this.questionnaire.status = 'draft';
     } else {
       this.questionnaire.status = 'active';

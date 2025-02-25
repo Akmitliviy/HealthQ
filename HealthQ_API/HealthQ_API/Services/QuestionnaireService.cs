@@ -94,19 +94,36 @@ public class QuestionnaireService
         return await _questionnaireRepository.GetQuestionnaireAsync(questionnaireId, ct);
     }
 
-    public async Task<List<Questionnaire?>> GetQuestionnairesByPatientAsync(string patientEmail, CancellationToken ct)
+    public async Task<List<string>> GetQuestionnairesByPatientAsync(string patientEmail, CancellationToken ct)
     {
         
         var patient = await _patientRepository.GetPatientWithQuestionnairesAsync(patientEmail, ct);
         if (patient == null)
             throw new NullReferenceException("Patient not found");
-            
-        FhirJsonParser parser = new FhirJsonParser();
         
         var questionnaires = patient.Questionnaires
-            .Select(q => parser.Parse<Questionnaire>(q.QuestionnaireContent))
+            .Select(q => q.QuestionnaireContent)
             .ToList();
 
         return questionnaires;
+    }
+    
+    public async Task<QuestionnaireModel?> DeleteSurveyAsync(JsonElement questionnaireJson, CancellationToken ct)
+    {
+        var parse = new FhirJsonParser();
+            
+        var questionnaire = await parse.ParseAsync<Questionnaire>(questionnaireJson.GetRawText());
+        if (questionnaire == null)
+            throw new InvalidCastException("Invalid questionnaire structure");
+            
+        var questionnaireModel = new QuestionnaireModel
+        {
+            OwnerId = questionnaire.Publisher,
+            QuestionnaireContent = questionnaireJson.GetRawText(),
+            Id = Guid.Parse(questionnaire.Id),
+        };
+        
+        await _questionnaireRepository.DeleteQuestionnaireAsync(questionnaireModel.Id, ct);
+        return questionnaireModel;
     }
 }

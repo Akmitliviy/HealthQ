@@ -141,4 +141,13 @@ public class DoctorController : BaseController
             await _doctorService.RemovePatient(doctorId, patientId, ct);
             return Ok();
         });
+    
+    [HttpDelete]
+    public Task<ActionResult> DeleteById([FromBody] JsonElement questionnaireJson) =>
+        ExecuteSafely(async () =>
+        {
+            var userQuestionnaire =
+                await _questionnaireService.DeleteSurveyAsync(questionnaireJson, CancellationToken.None);
+            return Ok(userQuestionnaire);
+        });
 }

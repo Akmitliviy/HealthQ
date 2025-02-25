@@ -1,16 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {MatIcon} from '@angular/material/icon';
-import {MatFormField, MatLabel} from '@angular/material/form-field';
-import {MatOption, MatSelect} from '@angular/material/select';
-import {FormsModule} from '@angular/forms';
-import {NgClass, NgForOf} from '@angular/common';
-import {PServiceService} from '../../p-service.service';
-import {Router} from '@angular/router';
-import {Questionnaire} from 'fhir/r5';
-import {MatToolbar} from '@angular/material/toolbar';
-import {MatInput} from '@angular/material/input';
-import { MatIconButton} from '@angular/material/button';
-import {PQuestionnaireComponent} from '../../components/p-questionnaire/p-questionnaire.component';
+import { Component, OnInit } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { JsonPipe, NgClass, NgForOf } from '@angular/common';
+import { PServiceService } from '../../p-service.service';
+import { Router } from '@angular/router';
+import { Questionnaire } from 'fhir/r5';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatInput } from '@angular/material/input';
+import { MatIconButton } from '@angular/material/button';
+import { PQuestionnaireComponent } from '../../components/p-questionnaire/p-questionnaire.component';
 
 @Component({
   selector: 'app-p-questionnaires-page',
@@ -23,10 +23,10 @@ import {PQuestionnaireComponent} from '../../components/p-questionnaire/p-questi
     NgForOf,
     MatToolbar,
     MatInput,
-    PQuestionnaireComponent
+    PQuestionnaireComponent,
   ],
   templateUrl: './p-questionnaires-page.component.html',
-  styleUrl: './p-questionnaires-page.component.scss'
+  styleUrl: './p-questionnaires-page.component.scss',
 })
 export class PQuestionnairesPageComponent implements OnInit {
   availableQuestionnaires: Questionnaire[] = [];
@@ -41,27 +41,35 @@ export class PQuestionnairesPageComponent implements OnInit {
     '0': 'draft',
     '1': 'active',
     '2': 'retired',
-    '3': 'unknown'
+    '3': 'unknown',
   };
 
-  constructor(private questionnaireService: PServiceService, private router: Router) {}
+  constructor(
+    private questionnaireService: PServiceService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.loadData();
   }
 
   loadData() {
-    this.questionnaireService.getQuestionnaires()
-      .subscribe({
-        next: data => {
-          this.availableQuestionnaires = data;
-          this.availableQuestionnaires.forEach((q) => { // @ts-ignore
-            q.status = this.getStatusString(q.status)})
-          this.doctors = [...new Set(data.map(q => q.publisher!))]; // Get unique doctors
-          this.applyFilters();
-        },
-        error: err => {console.log(err)}
-      });
+    this.questionnaireService.getQuestionnaires().subscribe({
+      next: (data) => {
+        if (Array.isArray(data)) {
+          for (let q of data) {
+            this.availableQuestionnaires.push(JSON.parse(q));
+          }
+        } else {
+          console.error('Data is not an array!');
+        }
+        // this.doctors = [...new Set(data.map((q) => q.publisher!))];
+        this.applyFilters();
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   getStatusString(status: string): string {
@@ -70,16 +78,19 @@ export class PQuestionnairesPageComponent implements OnInit {
 
   applyFilters() {
     this.questionnaires = this.availableQuestionnaires
-      .filter(q =>
-        (!this.searchQuery || q.title!.toLowerCase().includes(this.searchQuery.toLowerCase())) &&
-        (!this.selectedStatus || q.status === this.selectedStatus) &&
-        (!this.selectedDoctor || q.publisher === this.selectedDoctor)
+      .filter(
+        (q) =>
+          (!this.searchQuery ||
+            q.title!.toLowerCase().includes(this.searchQuery.toLowerCase())) &&
+          (!this.selectedStatus || q.status === this.selectedStatus) &&
+          (!this.selectedDoctor || q.publisher === this.selectedDoctor)
       )
       .sort((a, b) => {
-        if (this.selectedSort === 'newest') return new Date(b.date!).getTime() - new Date(a.date!).getTime();
-        if (this.selectedSort === 'oldest') return new Date(a.date!).getTime() - new Date(b.date!).getTime();
+        if (this.selectedSort === 'newest')
+          return new Date(b.date!).getTime() - new Date(a.date!).getTime();
+        if (this.selectedSort === 'oldest')
+          return new Date(a.date!).getTime() - new Date(b.date!).getTime();
         return 0;
       });
   }
 }
-

@@ -1,13 +1,7 @@
-.question-card {
-  box-sizing: border-box;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
-}
-
 .question-title {
   display: flex;
-  padding: 1rem;
+  margin-left: 1rem;
+  margin-top: 0.5rem;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -18,13 +12,11 @@
   word-wrap: break-word;
   word-break: break-word;
   display: inline-block;
-  text-align: justify;
-  hyphens: auto;
   width: 100%;
 }
 
 .question-type-select {
-  margin-right: 1rem;
+  margin-right: 16px;
 }
 
 .spacer {
@@ -101,20 +93,4 @@ mat-expansion-panel {
   margin-right: 1rem;
   align-items: center;
   justify-content: center;
-}
-
-.radio-group,
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.button-title {
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.required-sign {
-  color: var(--mat-sys-error);
 }

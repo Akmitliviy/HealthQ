@@ -1,1 +1,46 @@
-<p>Questionnaire component works!</p>
+<div class="main-container">
+  <mat-toolbar class="header">
+    <p class="title-text">{{ questionnaire.title }}</p>
+    <span class="spacer"></span>
+    <button
+      mat-flat-button
+      class="toolbar-button"
+      (click)="onSubmit()"
+      [disabled]="!isAnswerFormValid()"
+    >
+      <mat-icon>check</mat-icon>
+      <span>Submit</span>
+    </button>
+  </mat-toolbar>
+
+  <div class="questions-container" #questionsContainer>
+    <mat-card class="description">
+      <mat-card-title class="description-title">
+        <div>
+          <p><strong>Purpose:</strong> {{ questionnaire.purpose }}</p>
+          <p><strong>Submit due:</strong> {{ dateDue }}</p>
+        </div>
+        <p class="description-text">
+          <strong>Description:</strong> {{ questionnaire.description }}
+        </p>
+      </mat-card-title>
+    </mat-card>
+
+    @for (question of questionnaire.item; track $index; let i = $index) {
+    <app-question
+      class="question"
+      [question]="question"
+      [observation]="observations[i]"
+    ></app-question>
+    <!--@for (conditional of question.item; track $index) {
+    <app-question
+      class="question-cond"
+      [question]="conditional"
+      (callSave)="saveToSessionStorage()"
+      (callDelete)="deleteQuestion(questions, conditional)"
+      [conditional]="true"
+    ></app-question>
+    } -->
+    }
+  </div>
+</div>
