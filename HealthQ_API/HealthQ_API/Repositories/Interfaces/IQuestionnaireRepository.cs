@@ -1,4 +1,5 @@
-﻿using HealthQ_API.Entities;
+﻿using HealthQ_API.DTOs;
+using HealthQ_API.Entities;
 using HealthQ_API.Entities.Auxiliary;
 using Task = System.Threading.Tasks.Task;
 
@@ -8,6 +9,7 @@ public interface IQuestionnaireRepository
 {
     public Task<QuestionnaireModel?> GetQuestionnaireAsync(Guid id, CancellationToken ct);
     public Task<IEnumerable<QuestionnaireModel>> GetQuestionnairesByOwnerAsync(string doctorEmail, CancellationToken ct);
+    Task<IEnumerable<QuestionnaireModel>> GetAssignedDoctorsQuestionnaires(string doctorEmail, CancellationToken ct);
     public Task<IEnumerable<QuestionnaireModel>> GetQuestionnairesByDoctorAndPatientAsync(
         string doctorEmail,
         string patientEmail,

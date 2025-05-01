@@ -22,6 +22,7 @@ public class DoctorController : BaseController
     private readonly UserService _userService;
     private readonly ClinicalImpressionService _clinicalImpressionService;
     private readonly ObservationService _observationService;
+    private readonly StatisticService _statisticService;
 
     public DoctorController(
         QuestionnaireService questionnaireService,
@@ -29,7 +30,8 @@ public class DoctorController : BaseController
         AdminService adminService,
         UserService userService,
         ClinicalImpressionService clinicalImpressionService,
-        ObservationService observationService)
+        ObservationService observationService,
+        StatisticService statisticService)
     {
         _questionnaireService = questionnaireService;
         _doctorService = doctorService;
@@ -37,6 +39,7 @@ public class DoctorController : BaseController
         _userService = userService;
         _clinicalImpressionService = clinicalImpressionService;
         _observationService = observationService;
+        _statisticService = statisticService;
     }
 
     [HttpGet]
@@ -187,5 +190,39 @@ public class DoctorController : BaseController
         {
             var observationContent = await _observationService.GetByIdAsync(Guid.Parse(observationId));
             return Ok(observationContent);
+        });
+
+    [HttpGet("{doctorEmail}/{start}/{end}")]
+    public Task<ActionResult> GetReportsChart(string doctorEmail, DateOnly start, DateOnly end, CancellationToken ct) =>
+        ExecuteSafely(async () =>
+        {
+            var guestChart = await _questionnaireService.GetReportsChart(doctorEmail, start, end, ct);
+            return Ok(guestChart);
+        });
+
+    [HttpGet("{doctorEmail}/{patientEmail}")]
+    public Task<ActionResult> GetPatientChart(string doctorEmail, string patientEmail, CancellationToken ct) =>
+        ExecuteSafely(async () =>
+        {
+            var guestChart = await _questionnaireService.GetPatientChart(doctorEmail, patientEmail, ct);
+            return Ok(guestChart);
+        });
+
+    [HttpGet("{doctorEmail}/{start}/{end}")]
+    public Task<ActionResult> GetQuestionnaireReport(string doctorEmail, DateOnly start, DateOnly end, CancellationToken ct) =>
+        ExecuteSafely(async () =>
+        {
+            (byte[] fileBytes, string type, string name) = 
+                await _statisticService.GetQuestionnaireReportAsync(doctorEmail, start, end, ct);
+            return File(fileBytes, type, name);
+        });
+
+    [HttpGet("{doctorEmail}/{patientEmail}")]
+    public Task<ActionResult> GetPatientReport(string doctorEmail, string patientEmail, CancellationToken ct) =>
+        ExecuteSafely(async () =>
+        {
+            (byte[] fileBytes, string type, string name) = 
+                await _statisticService.GetPatientReportAsync(doctorEmail, patientEmail, ct);
+            return File(fileBytes, type, name);
         });
 }

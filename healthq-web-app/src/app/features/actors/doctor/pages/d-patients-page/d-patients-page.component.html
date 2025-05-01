@@ -1,3 +1,11 @@
-@for (patient of patients; track $index) {
-<app-d-patient class="template-card" [patient]="patient"> </app-d-patient>
-}
+<mat-toolbar class="header">
+  <mat-form-field  appearance="outline" class="form-field">
+    <mat-label>Search</mat-label>
+    <input matInput placeholder="Patient's Name..."
+           [(ngModel)]="searchQuery" (input)="applyFilters()" />
+  </mat-form-field>
+
+</mat-toolbar>
+
+<app-d-patient *ngFor="let patient of patients" class="template-card" [patient]="patient"> </app-d-patient>
+

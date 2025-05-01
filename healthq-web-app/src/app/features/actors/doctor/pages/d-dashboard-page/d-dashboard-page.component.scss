@@ -1,0 +1,40 @@
+@use "@angular/material" as mat;
+
+.main-container{
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.chart-card{
+  padding: 15px;
+  margin: 15px;
+  height: 95%;
+  flex: 1;
+}
+
+mat-card-content{
+  align-self: center;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.statistic-button{
+  margin-top: 30px;
+  width: 70%
+}
+
+.diagram-title{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.title-description{
+  margin-top: 10px;
+  font-size: 40px;
+}

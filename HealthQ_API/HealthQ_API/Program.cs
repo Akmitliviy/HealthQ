@@ -28,6 +28,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<ClinicalImpressionService>();
 builder.Services.AddScoped<ObservationService>();
+builder.Services.AddScoped<StatisticService>();
 builder.Services.AddScoped<IObservationRepository, ObservationRepository>();    
 builder.Services.AddScoped<IClinicalImpressionRepository, ClinicalImpressionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

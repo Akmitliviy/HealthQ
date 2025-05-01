@@ -235,9 +235,11 @@ export class QConstructorComponent implements OnInit {
           return true;
         }
 
-        if (question.item.length > 0) {
-          if (deleteQuestionRecursively(question.item, target)) {
-            return true;
+        if(question.item !== undefined){
+          if (question.item.length > 0) {
+            if (deleteQuestionRecursively(question.item, target)) {
+              return true;
+            }
           }
         }
       }
@@ -319,17 +321,19 @@ export class QConstructorComponent implements OnInit {
         }
       }
 
-      if (question.enableWhen.length > 0) {
-        for (let condition of question.enableWhen) {
-          if (!condition.operator) {
-            return false;
-          } else if (!condition.question) {
-            return false;
-          } else if (
-            !condition.answerString &&
-            condition.operator !== 'exists'
-          ) {
-            return false;
+      if(question.enableWhen !== undefined){
+        if (question.enableWhen.length > 0) {
+          for (let condition of question.enableWhen) {
+            if (!condition.operator) {
+              return false;
+            } else if (!condition.question) {
+              return false;
+            } else if (
+              !condition.answerString &&
+              condition.operator !== 'exists'
+            ) {
+              return false;
+            }
           }
         }
       }

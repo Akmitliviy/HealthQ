@@ -29,7 +29,6 @@ import {MatIconButton} from '@angular/material/button';
     MatInput,
     FormsModule,
     MatLabel,
-    MatCell,
     MatIconButton,
     NgIf
   ],

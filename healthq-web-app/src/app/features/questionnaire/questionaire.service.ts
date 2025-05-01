@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { ClinicalImpression, Observation, Questionnaire } from 'fhir/r5';
 import { v4 as uuidv4 } from 'uuid';
 import {Observable} from 'rxjs';
+import {ChartStatistic} from '../../shared/models/chart-statistic.model';
 
 @Injectable({
   providedIn: 'root',
@@ -93,5 +94,34 @@ export class QuestionnaireService {
 
   deleteTemplate(id: string) {
     return this.http.delete(this.url + '/DeleteTemplate/' + id, {withCredentials: true});
+  }
+
+  getReportsChart(doctorEmail: string, startDate: Date, endDate: Date): Observable<ChartStatistic> {
+    return this.http.get<ChartStatistic>(`${this.url}/GetReportsChart/${doctorEmail}/${startDate.toDateString()}/${endDate.toDateString()}`,
+      {
+        withCredentials: true
+      })
+  }
+
+  getPatientChart(doctorEmail: string, patientEmail: string): Observable<ChartStatistic> {
+    return this.http.get<ChartStatistic>(`${this.url}/GetPatientChart/${doctorEmail}/${patientEmail}`,
+      {
+        withCredentials: true
+      })
+  }
+
+  getQuestionnaireReport(doctorEmail: string, startDate: Date, endDate: Date){
+    return this.http.get(`${this.url}/GetQuestionnaireReport/${doctorEmail}/${startDate.toDateString()}/${endDate.toDateString()}`,
+      {
+        withCredentials: true,
+        responseType: 'blob'
+      });
+  }
+  getPatientReport(doctorEmail: string, patientEmail: string){
+    return this.http.get(`${this.url}/GetPatientReport/${doctorEmail}/${patientEmail}`,
+      {
+        withCredentials: true,
+        responseType: 'blob'
+      });
   }
 }

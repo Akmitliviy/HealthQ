@@ -1,0 +1,55 @@
+<div class="main-container">
+    <mat-card class="chart-card diagram-card">
+      <mat-card-title class="diagram-title">
+        <span class="title-description">My Questionnaires</span>
+        <mat-form-field appearance="outline" class="period-selector-field">
+          <mat-label>Date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker" [formGroup]="reportsFormGroup">
+            <input matStartDate formControlName="start">
+            <input matEndDate formControlName="end" (dateChange)="updateReportsChart()">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </mat-card-title>
+      <mat-card-content class="report-card-content">
+        <canvas class="reports-canvas" #reportsCanvas>
+
+        </canvas>
+        <button
+          mat-flat-button
+          class="statistic-button"
+          (click)="downloadQuestionnaireReport()"
+        >
+          Download report
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card guest-list">
+      <mat-card-title class="diagram-title">
+        <span class="title-description">Patient Statistic</span>
+        <mat-form-field appearance="outline" class="patient-selector">
+          <mat-label>Pick Patient</mat-label>
+          <mat-select [(value)]="selectedPatient" (selectionChange)="updatePatientChart()">
+            <mat-option
+              *ngFor="let patient of patients" [value]="patient.email">
+              {{patient.firstName + ' ' + patient.lastName}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-title>
+      <mat-card-content class="patient-card-content">
+        <canvas class="patient-canvas" #patientCanvas>
+
+        </canvas>
+        <button
+          mat-flat-button
+          class="statistic-button"
+          (click)="downloadPatientReport()"
+        >
+          Download report
+        </button>
+      </mat-card-content>
+    </mat-card>
+</div>

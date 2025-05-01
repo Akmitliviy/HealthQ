@@ -32,6 +32,16 @@ public class QuestionnaireRepository : IQuestionnaireRepository
         return questionnaires;
     }
 
+    public async Task<IEnumerable<QuestionnaireModel>> GetAssignedDoctorsQuestionnaires(string doctorEmail, CancellationToken ct)
+    {
+        var questionnaires =  await _context.Questionnaires
+            .Where(q => q.OwnerId == doctorEmail)
+            .Include(q => q.PatientQuestionnaires)
+            .ToListAsync(ct);
+        
+        return questionnaires;
+    }
+
     public async Task<IEnumerable<QuestionnaireModel>> GetQuestionnairesByDoctorAndPatientAsync(
         string doctorEmail,
         string patientEmail,

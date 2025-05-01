@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
 using HealthQ_API.Context;
+using HealthQ_API.DTOs;
 using HealthQ_API.Entities;
 using HealthQ_API.Entities.Auxiliary;
+using HealthQ_API.Entities.Wrappers;
 using HealthQ_API.Repositories;
 using HealthQ_API.Repositories.Interfaces;
 using Hl7.Fhir.Model;
@@ -162,5 +164,118 @@ public class QuestionnaireService
     public async Task DeleteTemplateAsync(string templateId, CancellationToken ct)
     {
         await _templateRepository.DeleteTemplateAsync(Guid.Parse(templateId), ct);
+    }
+
+    public async Task<List<Questionnaire>> GetQuestionnaireWithinDateRange(
+        IEnumerable<QuestionnaireModel> questionnaireModels,
+        DateOnly startDate, 
+        DateOnly endDate)
+    {
+
+        var parser = new FhirJsonParser();
+        var questionnaires = new List<Questionnaire>();
+        foreach (var questionnaire in questionnaireModels)
+        {
+            var q = await parser.ParseAsync<Questionnaire>(questionnaire.QuestionnaireContent);
+            var date = DateOnly.FromDateTime(DateTime.Parse(q.Date));
+            if (date >= startDate && date <= endDate)
+            {
+                questionnaires.Add(q);
+            }
+        }
+        
+        return questionnaires;
+    }
+    
+    public async Task<ChartStatistic> GetReportsChart(string doctorEmail, DateOnly start, DateOnly end, CancellationToken ct)
+    {
+        var assignedDoctorsQuestionnaires = 
+            await _questionnaireRepository.GetAssignedDoctorsQuestionnaires(doctorEmail, ct);
+
+        var questionnaires = await GetQuestionnaireWithinDateRange(assignedDoctorsQuestionnaires, start, end);
+
+        var chartData = new List<ChartData>();
+        if(questionnaires.Count == 0)
+            return new ChartStatistic
+            {
+                ChartsData = chartData,
+                ValueSum = 0
+            };
+        
+        chartData.AddRange([
+            new ChartData{Type = "Assigned"},
+            new ChartData{Type = "Finished"},
+            new ChartData{Type = "Expired"},
+            ]);
+
+        foreach (var q in questionnaires)
+        {
+            if (q.Status == PublicationStatus.Draft)
+            {
+                chartData.Find(cd => cd.Type == "Expired")!.Value += 1;
+            }else if (q.Status == PublicationStatus.Active)
+            {
+                chartData.Find(cd => cd.Type == "Assigned")!.Value += 1;
+            }else if (q.Status == PublicationStatus.Retired)
+            {
+                chartData.Find(cd => cd.Type == "Finished")!.Value += 1;
+            }
+        }
+        
+        var chartStatistic = new ChartStatistic
+        {
+            ChartsData = chartData,
+            ValueSum = chartData.Sum(c => c.Value)
+        };
+        
+        return chartStatistic;
+    }
+
+    public async Task<ChartStatistic> GetPatientChart(string doctorEmail, string patientEmail, CancellationToken ct)
+    {
+        var patientQuestionnaires = 
+            await _questionnaireRepository.GetQuestionnairesByDoctorAndPatientAsync(doctorEmail, patientEmail, ct);
+
+        var parser = new FhirJsonParser();
+        var questionnaires = 
+            patientQuestionnaires
+                .Select(pq => parser.Parse<Questionnaire>(pq.QuestionnaireContent))
+                .ToList();
+
+        var chartData = new List<ChartData>();
+        if(questionnaires.Count == 0)
+            return new ChartStatistic
+            {
+                ChartsData = chartData,
+                ValueSum = 0
+            };
+        
+        chartData.AddRange([
+            new ChartData{Type = "Assigned"},
+            new ChartData{Type = "Finished"},
+            new ChartData{Type = "Expired"},
+            ]);
+
+        foreach (var q in questionnaires)
+        {
+            if (q.Status == PublicationStatus.Draft)
+            {
+                chartData.Find(cd => cd.Type == "Expired")!.Value += 1;
+            }else if (q.Status == PublicationStatus.Active)
+            {
+                chartData.Find(cd => cd.Type == "Assigned")!.Value += 1;
+            }else if (q.Status == PublicationStatus.Retired)
+            {
+                chartData.Find(cd => cd.Type == "Finished")!.Value += 1;
+            }
+        }
+        
+        var chartStatistic = new ChartStatistic
+        {
+            ChartsData = chartData,
+            ValueSum = chartData.Sum(c => c.Value)
+        };
+        
+        return chartStatistic;
     }
 }

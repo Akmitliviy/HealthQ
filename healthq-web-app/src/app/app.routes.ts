@@ -16,6 +16,7 @@ import { ProfileComponent } from './core/auth/pages/profile/profile.component';
 import { AMainPageComponent } from './features/actors/administrator/pages/a-main-page/a-main-page.component';
 import { ADoctorsPageComponent } from './features/actors/administrator/pages/a-doctors-page/a-doctors-page.component';
 import { ADoctorProfilePageComponent } from './features/actors/administrator/pages/a-doctor-profile-page/a-doctor-profile-page.component';
+import { DDashboardPageComponent } from './features/actors/doctor/pages/d-dashboard-page/d-dashboard-page.component';
 
 export const routes: Routes = [
   {
@@ -36,8 +37,14 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'patients',
+        redirectTo: 'dashboard',
         pathMatch: 'full',
+      },
+      {
+        path: 'dashboard',
+        component: DDashboardPageComponent,
+        canActivate: [authGuard],
+        title: 'Dashboard',
       },
       {
         path: 'templates',
