@@ -1,13 +1,10 @@
-﻿using System.Text.Json;
-using Bogus;
+﻿using Bogus;
 using HealthQ_API.Context;
 using HealthQ_API.Entities;
 using HealthQ_API.Entities.Auxiliary;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Hl7.Fhir.Specification.Snapshot;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HealthQ_API.Controllers;
 
